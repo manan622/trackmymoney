@@ -47,6 +47,20 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
+        income: "hsl(var(--income))",
+        expense: "hsl(var(--expense))",
+        user: {
+          blue: "217 91% 60%",
+          emerald: "142 71% 45%",
+          amber: "38 92% 50%",
+          rose: "351 95% 71%",
+          violet: "271 76% 53%",
+          sky: "199 89% 48%",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
