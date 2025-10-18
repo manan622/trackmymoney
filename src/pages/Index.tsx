@@ -46,27 +46,24 @@ const Index = () => {
     storage.setNextTransactionId(nextTransactionId);
   }, [users, transactions, nextUserId, nextTransactionId]);
 
-  // Calculate balances
-  const calculateBalances = () => {
-    const updatedUsers = users.map(u => ({ ...u, balance: 0 }));
-    let totalBalance = 0;
-
+  // Calculate balances (derived state - no mutation)
+  const usersWithBalances = users.map(u => {
+    let balance = 0;
     transactions.forEach(t => {
-      const user = updatedUsers.find(u => u.id === t.userId);
-      if (t.type === 'income') {
-        if (user) user.balance += t.amount;
-        totalBalance += t.amount;
-      } else {
-        if (user) user.balance -= t.amount;
-        totalBalance -= t.amount;
+      if (t.userId === u.id) {
+        if (t.type === 'income') {
+          balance += t.amount;
+        } else {
+          balance -= t.amount;
+        }
       }
     });
+    return { ...u, balance };
+  });
 
-    setUsers(updatedUsers);
-    return totalBalance;
-  };
-
-  const totalBalance = calculateBalances();
+  const totalBalance = transactions.reduce((total, t) => {
+    return t.type === 'income' ? total + t.amount : total - t.amount;
+  }, 0);
 
   const formatCurrency = (amount: number) => 
     `₹${new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount)}`;
@@ -271,7 +268,7 @@ const Index = () => {
               </div>
               <div>
                 <h3 className="text-lg font-semibold mb-4 text-center">Balance Distribution</h3>
-                <BalanceVisualization users={users} />
+                <BalanceVisualization users={usersWithBalances} />
               </div>
             </div>
           </CardContent>
@@ -279,7 +276,7 @@ const Index = () => {
 
         {/* User Balance Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <BalanceCards users={users} />
+          <BalanceCards users={usersWithBalances} />
         </div>
 
         {/* Tabs Section */}
