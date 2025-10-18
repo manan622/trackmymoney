@@ -178,6 +178,10 @@ const Index = () => {
         
         const isMoneyManagerFormat = headers.includes('Income/Expense');
         let importedCount = 0;
+        const newUsers: User[] = [];
+        const newTransactions: Transaction[] = [];
+        let currentNextUserId = nextUserId;
+        let currentNextTransactionId = nextTransactionId;
 
         if (isMoneyManagerFormat) {
           const dateIndex = headers.indexOf('Date');
@@ -197,15 +201,22 @@ const Index = () => {
             const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
             
             const accountName = cols[accountIndex].replace(/"/g, '');
+            
+            // Check in existing users and newly created users
             let user = users.find(u => u.name.toLowerCase() === accountName.toLowerCase());
             if (!user) {
-              user = { id: nextUserId, name: accountName, balance: 0 };
-              setUsers(prev => [...prev, user!]);
-              setNextUserId(prev => prev + 1);
+              user = newUsers.find(u => u.name.toLowerCase() === accountName.toLowerCase());
+            }
+            
+            // Create new user if not found
+            if (!user) {
+              user = { id: currentNextUserId, name: accountName, balance: 0 };
+              newUsers.push(user);
+              currentNextUserId++;
             }
 
             const newTransaction: Transaction = {
-              id: nextTransactionId + importedCount,
+              id: currentNextTransactionId,
               type: cols[typeIndex].replace(/"/g, '').toLowerCase() as 'income' | 'expense',
               userId: user.id,
               amount: parseFloat(cols[amountIndex]),
@@ -215,11 +226,19 @@ const Index = () => {
               imageUrl: null,
             };
 
-            setTransactions(prev => [...prev, newTransaction]);
+            newTransactions.push(newTransaction);
+            currentNextTransactionId++;
             importedCount++;
           }
           
-          setNextTransactionId(prev => prev + importedCount);
+          // Update all state at once
+          if (newUsers.length > 0) {
+            setUsers(prev => [...prev, ...newUsers]);
+          }
+          setTransactions(prev => [...prev, ...newTransactions]);
+          setNextUserId(currentNextUserId);
+          setNextTransactionId(currentNextTransactionId);
+          
           toast.success(`${importedCount} transactions imported successfully`);
         } else {
           toast.error('Unknown CSV format');
