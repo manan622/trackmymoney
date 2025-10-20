@@ -457,12 +457,14 @@ const Index = () => {
         </div>
 
         <Tabs defaultValue="history" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="history">Transaction History</TabsTrigger>
-            <TabsTrigger value="add">Add Transaction</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="manage">Manage Users & Data</TabsTrigger>
-          </TabsList>
+          <div className="mb-4 overflow-x-auto">
+            <TabsList className="inline-flex w-auto min-w-full">
+              <TabsTrigger value="history">Transaction History</TabsTrigger>
+              <TabsTrigger value="add">Add Transaction</TabsTrigger>
+              <TabsTrigger value="analytics">Analytics</TabsTrigger>
+              <TabsTrigger value="manage">Manage Users & Data</TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent value="history">
             <Card>
