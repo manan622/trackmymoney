@@ -26,14 +26,27 @@ export function BalanceCards({ users }: BalanceCardsProps) {
         return (
           <Card 
             key={user.id} 
-            className="shadow-card hover:shadow-hover transition-all duration-200"
-            style={{ borderTopWidth: '4px', borderTopColor: USER_COLORS[colorIndex] }}
+            className="shadow-lg hover:shadow-xl transition-all duration-300 border-t-4 overflow-hidden group"
+            style={{ borderTopColor: USER_COLORS[colorIndex] }}
           >
-            <CardContent className="p-6 text-center">
-              <h3 className="text-lg font-semibold text-card-foreground mb-2">{user.name}'s Balance</h3>
-              <p className={`text-3xl font-bold ${user.balance >= 0 ? 'text-foreground' : 'text-expense'}`}>
-                {formatCurrency(user.balance)}
-              </p>
+            <CardContent className="p-0">
+              <div className="bg-gradient-to-br from-primary/5 to-transparent p-4 border-b">
+                <h3 className="text-xl font-bold text-center">{user.name}</h3>
+              </div>
+              <div className="grid grid-cols-2 divide-x">
+                <div className="p-4 text-center hover:bg-muted/30 transition-colors">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Net Balance</p>
+                  <p className={`text-2xl font-bold ${user.balance >= 0 ? 'text-income' : 'text-expense'}`}>
+                    {formatCurrency(user.balance)}
+                  </p>
+                </div>
+                <div className="p-4 text-center hover:bg-muted/30 transition-colors">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Total Expenses</p>
+                  <p className="text-2xl font-bold text-expense">
+                    {formatCurrency(Math.abs(user.balance < 0 ? user.balance : 0))}
+                  </p>
+                </div>
+              </div>
             </CardContent>
           </Card>
         );

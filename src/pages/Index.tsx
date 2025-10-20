@@ -13,7 +13,6 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertCircle, X, LogOut } from 'lucide-react';
 import { BalanceCards } from '@/components/BalanceCards';
-import { BalanceVisualization } from '@/components/BalanceVisualization';
 import { TransactionForm } from '@/components/TransactionForm';
 import { TransactionHistory } from '@/components/TransactionHistory';
 import { UserManagement } from '@/components/UserManagement';
@@ -419,35 +418,29 @@ const Index = () => {
       <header className="text-center mb-10">
         <div className="flex justify-between items-center mb-4">
           <div className="flex-1" />
-          <h1 className="flex-1 text-4xl sm:text-5xl font-bold text-gradient tracking-tight">
-            Shared Expense Manager
+          <h1 className="flex-1 text-4xl sm:text-5xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent tracking-tight">
+            Track My Money
           </h1>
           <div className="flex-1 flex justify-end">
-            <Button variant="outline" onClick={signOut}>
+            <Button variant="outline" onClick={signOut} className="shadow-sm">
               <LogOut className="h-4 w-4 mr-2" />
               Sign Out
             </Button>
           </div>
         </div>
-        <p className="text-muted-foreground text-lg">A clear view of your shared finances.</p>
+        <p className="text-muted-foreground text-lg font-medium">Your personal finance companion</p>
       </header>
 
       <main className="space-y-8">
-        <Card className="shadow-card">
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-              <div className="text-center p-8 rounded-lg bg-primary/5 border-2 border-primary/20">
-                <h2 className="text-lg font-semibold text-primary uppercase tracking-wider mb-2">
-                  Total Account Balance
-                </h2>
-                <p className="text-5xl font-bold text-primary">
-                  {formatCurrency(totalBalance)}
-                </p>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold mb-4 text-center">Balance Distribution</h3>
-                <BalanceVisualization users={users} />
-              </div>
+        <Card className="shadow-lg border-2 border-primary/10">
+          <CardContent className="p-8">
+            <div className="text-center">
+              <h2 className="text-lg font-semibold text-primary/70 uppercase tracking-wider mb-3">
+                Total Account Balance
+              </h2>
+              <p className="text-6xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                {formatCurrency(totalBalance)}
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -466,8 +459,8 @@ const Index = () => {
             </TabsList>
           </div>
 
-          <TabsContent value="history">
-            <Card>
+          <TabsContent value="history" className="mt-6">
+            <Card className="shadow-lg">
               <CardContent className="p-6">
                 <TransactionHistory
                   transactions={transactions}
@@ -481,24 +474,24 @@ const Index = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="add">
-            <Card>
+          <TabsContent value="add" className="mt-6">
+            <Card className="shadow-lg">
               <CardContent className="p-6">
                 <TransactionForm users={users} onSubmit={handleAddTransaction} />
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="analytics">
-            <Card>
+          <TabsContent value="analytics" className="mt-6">
+            <Card className="shadow-lg">
               <CardContent className="p-6">
                 <Analytics users={users} transactions={transactions} />
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="manage">
-            <Card>
+          <TabsContent value="manage" className="mt-6">
+            <Card className="shadow-lg">
               <CardContent className="p-6">
                 <UserManagement
                   users={users}
