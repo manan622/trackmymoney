@@ -227,8 +227,8 @@ export function TransactionHistory({
       </div>
 
       {/* Transaction list */}
-      <ScrollArea className={isFullscreen ? 'h-[calc(100vh-300px)] overflow-x-hidden' : 'h-[400px] overflow-x-hidden'}>
-        <div className="space-y-3 pr-2 md:pr-4 overflow-x-hidden">
+      <ScrollArea className={isFullscreen ? 'h-[calc(100vh-300px)]' : 'h-[400px]'}>
+        <div className="space-y-3 pr-2 sm:pr-4">
           {filteredTransactions.length === 0 ? (
             <p className="text-muted-foreground text-center py-8">No transactions match your filters.</p>
           ) : (
@@ -244,76 +244,90 @@ export function TransactionHistory({
                   return (
                     <div
                       key={t.id}
-                      className={`mb-3 p-4 w-full max-w-full overflow-hidden rounded-xl flex items-center gap-4 bg-card border-2 hover:shadow-lg transition-all duration-300 cursor-pointer group ${
+                      className={`mb-3 p-3 sm:p-4 w-full rounded-xl flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 bg-card border-2 hover:shadow-lg transition-all duration-300 cursor-pointer group ${
                         isIncome ? 'border-l-4 border-income hover:border-income/50' : 'border-l-4 border-expense hover:border-expense/50'
                       }`}
                       onClick={() => onTransactionClick(t)}
                     >
-                      <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${
-                        isIncome ? 'bg-income/10' : 'bg-expense/10'
-                      }`}>
-                        {isIncome ? (
-                          <ArrowUpCircle className="w-7 h-7 text-income" />
-                        ) : (
-                          <ArrowDownCircle className="w-7 h-7 text-expense" />
-                        )}
-                      </div>
-                      
-                      <div className="flex-grow min-w-0">
-                        <p className="font-bold text-base truncate group-hover:text-primary transition-colors">{t.description}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs px-2 py-0.5 bg-muted rounded-full font-medium">
-                            {user ? user.name : 'N/A'}
-                          </span>
-                          {t.time && (
-                            <span className="text-xs text-muted-foreground">
-                              {formatTime(t.time)}
-                            </span>
+                      {/* Mobile: Row layout for icon, content, and amount */}
+                      <div className="flex items-start gap-3 w-full sm:flex-1">
+                        <div className={`flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center ${
+                          isIncome ? 'bg-income/10' : 'bg-expense/10'
+                        }`}>
+                          {isIncome ? (
+                            <ArrowUpCircle className="w-5 h-5 sm:w-7 sm:h-7 text-income" />
+                          ) : (
+                            <ArrowDownCircle className="w-5 h-5 sm:w-7 sm:h-7 text-expense" />
                           )}
                         </div>
-                      </div>
+                        
+                        <div className="flex-grow min-w-0">
+                          <p className="font-bold text-sm sm:text-base truncate group-hover:text-primary transition-colors">{t.description}</p>
+                          <div className="flex items-center gap-2 mt-1 flex-wrap">
+                            <span className="text-xs px-2 py-0.5 bg-muted rounded-full font-medium">
+                              {user ? user.name : 'N/A'}
+                            </span>
+                            {t.time && (
+                              <span className="text-xs text-muted-foreground">
+                                {formatTime(t.time)}
+                              </span>
+                            )}
+                          </div>
+                        </div>
 
-                      {t.imageUrl && (
-                        <img
-                          src={t.imageUrl}
-                          alt="Attachment"
-                          className="w-12 h-12 object-cover rounded-lg cursor-pointer flex-shrink-0 border-2 border-muted hover:border-primary transition-colors"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onImageClick(t.imageUrl!);
-                          }}
-                        />
-                      )}
-
-                      <div className="flex items-center gap-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
-                        <div className="text-right">
-                          <span className={`font-bold text-lg block ${isIncome ? 'text-income' : 'text-expense'}`}>
+                        <div className="flex-shrink-0 text-right sm:hidden">
+                          <span className={`font-bold text-base block ${isIncome ? 'text-income' : 'text-expense'}`}>
                             {isIncome ? '+' : '-'}{formatCurrency(t.amount)}
                           </span>
                         </div>
-                        <div className="flex gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-9 w-9 hover:bg-primary/10 hover:text-primary"
+                      </div>
+
+                      {/* Mobile: Image and actions row */}
+                      <div className="flex items-center justify-between w-full sm:w-auto sm:flex-shrink-0 sm:gap-2" onClick={(e) => e.stopPropagation()}>
+                        {t.imageUrl && (
+                          <img
+                            src={t.imageUrl}
+                            alt="Attachment"
+                            className="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded-lg cursor-pointer border-2 border-muted hover:border-primary transition-colors"
                             onClick={(e) => {
                               e.stopPropagation();
-                              onEdit(t);
+                              onImageClick(t.imageUrl!);
                             }}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-9 w-9 hover:bg-destructive/10 text-destructive hover:text-destructive"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onDelete(t.id);
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          />
+                        )}
+                        
+                        <div className="flex items-center gap-2">
+                          {/* Desktop amount - hidden on mobile */}
+                          <div className="text-right hidden sm:block">
+                            <span className={`font-bold text-lg block ${isIncome ? 'text-income' : 'text-expense'}`}>
+                              {isIncome ? '+' : '-'}{formatCurrency(t.amount)}
+                            </span>
+                          </div>
+                          
+                          <div className="flex gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 sm:h-9 sm:w-9 hover:bg-primary/10 hover:text-primary"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onEdit(t);
+                              }}
+                            >
+                              <Pencil className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 sm:h-9 sm:w-9 hover:bg-destructive/10 text-destructive hover:text-destructive"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onDelete(t.id);
+                              }}
+                            >
+                              <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </div>
