@@ -43,7 +43,7 @@ export function BalanceCards({ users }: BalanceCardsProps) {
                 <div className="p-4 text-center hover:bg-muted/30 transition-colors">
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Total Expenses</p>
                   <p className="text-2xl font-bold text-expense">
-                    {formatCurrency(Math.abs(user.balance < 0 ? user.balance : 0))}
+                    {formatCurrency(user.balance < 0 ? Math.abs(user.balance) : 0)}
                   </p>
                 </div>
               </div>

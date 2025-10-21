@@ -106,7 +106,7 @@ export function Analytics({ users, transactions }: AnalyticsProps) {
             <CardTitle>Balance Distribution</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={250}>
               <PieChart>
                 <Pie
                   data={balanceData}
@@ -114,7 +114,7 @@ export function Analytics({ users, transactions }: AnalyticsProps) {
                   cy="50%"
                   labelLine={false}
                   label={({ name, value }) => `${name}: ${formatCurrency(value)}`}
-                  outerRadius={80}
+                  outerRadius={70}
                   fill="#8884d8"
                   dataKey="balance"
                 >
@@ -134,7 +134,7 @@ export function Analytics({ users, transactions }: AnalyticsProps) {
             <CardTitle>Income vs Expense by User</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={250}>
               <BarChart data={userIncomeExpenseData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
@@ -154,7 +154,7 @@ export function Analytics({ users, transactions }: AnalyticsProps) {
             <CardTitle>Monthly Income & Expense Trend</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={250}>
               <LineChart data={monthlyTrendData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />

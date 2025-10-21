@@ -599,7 +599,7 @@ const Index = () => {
 
       {/* Transaction Details Modal */}
       <Dialog open={detailsModal.open} onOpenChange={(open) => !open && setDetailsModal({ open: false, transaction: null })}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>Transaction Details</DialogTitle>
           </DialogHeader>
@@ -629,6 +629,17 @@ const Index = () => {
                 <div>
                   <Label className="font-semibold">Time:</Label>
                   <p>{formatTime(detailsModal.transaction.time)}</p>
+                </div>
+              )}
+              {detailsModal.transaction.imageUrl && (
+                <div>
+                  <Label className="font-semibold">Attached Image:</Label>
+                  <img 
+                    src={detailsModal.transaction.imageUrl} 
+                    alt="Transaction attachment" 
+                    className="w-full h-auto rounded-lg mt-2 border cursor-pointer"
+                    onClick={() => setImageViewerModal({ open: true, imageUrl: detailsModal.transaction!.imageUrl! })}
+                  />
                 </div>
               )}
             </div>

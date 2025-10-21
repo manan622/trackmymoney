@@ -227,7 +227,7 @@ export function TransactionHistory({
       </div>
 
       {/* Transaction list */}
-      <ScrollArea className={isFullscreen ? 'h-[calc(100vh-300px)]' : 'h-[320px]'}>
+      <ScrollArea className={isFullscreen ? 'h-[calc(100vh-300px)]' : 'h-[400px]'}>
         <div className="space-y-3 pr-4">
           {filteredTransactions.length === 0 ? (
             <p className="text-muted-foreground text-center py-8">No transactions match your filters.</p>
