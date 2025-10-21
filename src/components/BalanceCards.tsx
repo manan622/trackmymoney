@@ -1,11 +1,12 @@
-import { User, USER_COLORS } from '@/types/expense';
+import { User, USER_COLORS, Transaction } from '@/types/expense';
 import { Card, CardContent } from '@/components/ui/card';
 
 interface BalanceCardsProps {
   users: User[];
+  transactions: Transaction[];
 }
 
-export function BalanceCards({ users }: BalanceCardsProps) {
+export function BalanceCards({ users, transactions }: BalanceCardsProps) {
   const formatCurrency = (amount: number) => 
     `₹${new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount)}`;
 
@@ -23,6 +24,9 @@ export function BalanceCards({ users }: BalanceCardsProps) {
     <>
       {users.map((user, index) => {
         const colorIndex = index % USER_COLORS.length;
+        const totalExpense = transactions
+          .filter(t => t.userId === user.id && t.type === 'expense')
+          .reduce((sum, t) => sum + t.amount, 0);
         return (
           <Card 
             key={user.id} 
@@ -43,7 +47,7 @@ export function BalanceCards({ users }: BalanceCardsProps) {
                 <div className="p-4 text-center hover:bg-muted/30 transition-colors">
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Total Expenses</p>
                   <p className="text-2xl font-bold text-expense">
-                    {formatCurrency(user.balance < 0 ? Math.abs(user.balance) : 0)}
+                    {formatCurrency(totalExpense)}
                   </p>
                 </div>
               </div>

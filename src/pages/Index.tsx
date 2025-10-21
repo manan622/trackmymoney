@@ -446,7 +446,7 @@ const Index = () => {
         </Card>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <BalanceCards users={users} />
+          <BalanceCards users={users} transactions={transactions} />
         </div>
 
         <Tabs defaultValue="history" className="w-full">

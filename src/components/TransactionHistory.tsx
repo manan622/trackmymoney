@@ -120,7 +120,7 @@ export function TransactionHistory({
   }, {} as Record<string, Transaction[]>);
 
   return (
-    <div className={isFullscreen ? 'fixed inset-0 z-50 bg-background p-4 overflow-y-auto' : ''}>
+    <div className={isFullscreen ? 'fixed inset-0 z-50 bg-background p-4 overflow-y-auto max-w-full overflow-x-hidden' : 'max-w-full overflow-x-hidden'}>
       {/* Header with fullscreen toggle */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Transaction History</h2>
@@ -227,8 +227,8 @@ export function TransactionHistory({
       </div>
 
       {/* Transaction list */}
-      <ScrollArea className={isFullscreen ? 'h-[calc(100vh-300px)]' : 'h-[400px]'}>
-        <div className="space-y-3 pr-4">
+      <ScrollArea className={isFullscreen ? 'h-[calc(100vh-300px)] overflow-x-hidden' : 'h-[400px] overflow-x-hidden'}>
+        <div className="space-y-3 pr-2 md:pr-4 overflow-x-hidden">
           {filteredTransactions.length === 0 ? (
             <p className="text-muted-foreground text-center py-8">No transactions match your filters.</p>
           ) : (
@@ -244,7 +244,7 @@ export function TransactionHistory({
                   return (
                     <div
                       key={t.id}
-                      className={`mb-3 p-4 rounded-xl flex items-center gap-4 bg-card border-2 hover:shadow-lg transition-all duration-300 cursor-pointer group ${
+                      className={`mb-3 p-4 w-full max-w-full overflow-hidden rounded-xl flex items-center gap-4 bg-card border-2 hover:shadow-lg transition-all duration-300 cursor-pointer group ${
                         isIncome ? 'border-l-4 border-income hover:border-income/50' : 'border-l-4 border-expense hover:border-expense/50'
                       }`}
                       onClick={() => onTransactionClick(t)}
