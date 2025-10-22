@@ -369,62 +369,6 @@ const Index = () => {
     reader.readAsText(file);
   };
 
-  const handleImportUsersCSV = async (file: File) => {
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      try {
-        const text = e.target?.result as string;
-        const lines = text.split('\n');
-        const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim().toLowerCase());
-        
-        const nameIndex = headers.indexOf('name');
-        if (nameIndex === -1) {
-          toast.error('CSV must have a "name" column');
-          return;
-        }
-
-        let updatedCount = 0;
-        let createdCount = 0;
-
-        for (let i = 1; i < lines.length; i++) {
-          const line = lines[i].trim();
-          if (!line) continue;
-
-          const cols = line.split(',');
-          const userName = cols[nameIndex].replace(/"/g, '').trim();
-          if (!userName) continue;
-
-          // Check if user exists
-          const { data: existingUsers } = await supabase
-            .from('expense_users')
-            .select('*')
-            .eq('user_id', user!.id)
-            .ilike('name', userName);
-
-          if (existingUsers && existingUsers.length > 0) {
-            // User exists, could update if needed (currently just counts)
-            updatedCount++;
-          } else {
-            // Create new user
-            const { error: createError } = await supabase
-              .from('expense_users')
-              .insert({ name: userName, user_id: user!.id });
-
-            if (createError) throw createError;
-            createdCount++;
-          }
-        }
-
-        toast.success(`Users: ${createdCount} created, ${updatedCount} already exist`);
-        await loadData();
-      } catch (error: any) {
-        console.error('Import error:', error);
-        toast.error('Failed to import users CSV');
-      }
-    };
-    reader.readAsText(file);
-  };
-
   const handleEditUser = async (id: number, newName: string) => {
     const uuid = getUuidFromNumericId(id);
     if (!uuid) return;
@@ -556,7 +500,6 @@ const Index = () => {
                   onEditUser={handleEditUser}
                   onExportCSV={handleExportCSV}
                   onImportCSV={handleImportCSV}
-                  onImportUsersCSV={handleImportUsersCSV}
                 />
               </CardContent>
             </Card>
