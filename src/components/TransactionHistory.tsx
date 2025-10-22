@@ -244,88 +244,106 @@ export function TransactionHistory({
                   return (
                     <div
                       key={t.id}
-                      className={`mb-3 p-3 sm:p-4 w-full rounded-xl flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 bg-card border-2 hover:shadow-lg transition-all duration-300 cursor-pointer group ${
-                        isIncome ? 'border-l-4 border-income hover:border-income/50' : 'border-l-4 border-expense hover:border-expense/50'
+                      className={`group relative mb-3 p-4 sm:p-5 rounded-2xl bg-card border border-border/50 hover:border-border hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden ${
+                        isIncome ? 'hover:shadow-income/5' : 'hover:shadow-expense/5'
                       }`}
                       onClick={() => onTransactionClick(t)}
                     >
-                      {/* Mobile: Row layout for icon, content, and amount */}
-                      <div className="flex items-start gap-3 w-full sm:flex-1">
-                        <div className={`flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center ${
-                          isIncome ? 'bg-income/10' : 'bg-expense/10'
-                        }`}>
-                          {isIncome ? (
-                            <ArrowUpCircle className="w-5 h-5 sm:w-7 sm:h-7 text-income" />
-                          ) : (
-                            <ArrowDownCircle className="w-5 h-5 sm:w-7 sm:h-7 text-expense" />
-                          )}
-                        </div>
-                        
-                        <div className="flex-grow min-w-0">
-                          <p className="font-bold text-sm sm:text-base truncate group-hover:text-primary transition-colors">{t.description}</p>
-                          <div className="flex items-center gap-2 mt-1 flex-wrap">
-                            <span className="text-xs px-2 py-0.5 bg-muted rounded-full font-medium">
-                              {user ? user.name : 'N/A'}
-                            </span>
-                            {t.time && (
-                              <span className="text-xs text-muted-foreground">
-                                {formatTime(t.time)}
-                              </span>
+                      {/* Accent gradient bar */}
+                      <div className={`absolute left-0 top-0 bottom-0 w-1 ${
+                        isIncome ? 'bg-gradient-to-b from-income to-income/60' : 'bg-gradient-to-b from-expense to-expense/60'
+                      }`} />
+                      
+                      {/* Card content */}
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                        {/* Icon and content section */}
+                        <div className="flex items-start gap-3 flex-1 min-w-0">
+                          {/* Icon */}
+                          <div className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center shadow-sm ${
+                            isIncome 
+                              ? 'bg-gradient-to-br from-income/20 to-income/10 border border-income/20' 
+                              : 'bg-gradient-to-br from-expense/20 to-expense/10 border border-expense/20'
+                          }`}>
+                            {isIncome ? (
+                              <ArrowUpCircle className="w-6 h-6 text-income" strokeWidth={2.5} />
+                            ) : (
+                              <ArrowDownCircle className="w-6 h-6 text-expense" strokeWidth={2.5} />
                             )}
                           </div>
-                        </div>
+                          
+                          {/* Text content */}
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-base sm:text-lg text-foreground truncate mb-1.5 group-hover:text-primary transition-colors">
+                              {t.description}
+                            </p>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="inline-flex items-center text-xs px-2.5 py-1 bg-muted/60 rounded-full font-medium text-muted-foreground">
+                                {user ? user.name : 'N/A'}
+                              </span>
+                              {t.time && (
+                                <span className="text-xs text-muted-foreground font-medium">
+                                  {formatTime(t.time)}
+                                </span>
+                              )}
+                            </div>
+                          </div>
 
-                        <div className="flex-shrink-0 text-right sm:hidden">
-                          <span className={`font-bold text-base block ${isIncome ? 'text-income' : 'text-expense'}`}>
-                            {isIncome ? '+' : '-'}{formatCurrency(t.amount)}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Mobile: Image and actions row */}
-                      <div className="flex items-center justify-between w-full sm:w-auto sm:flex-shrink-0 sm:gap-2" onClick={(e) => e.stopPropagation()}>
-                        {t.imageUrl && (
-                          <img
-                            src={t.imageUrl}
-                            alt="Attachment"
-                            className="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded-lg cursor-pointer border-2 border-muted hover:border-primary transition-colors"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onImageClick(t.imageUrl!);
-                            }}
-                          />
-                        )}
-                        
-                        <div className="flex items-center gap-2">
-                          {/* Desktop amount - hidden on mobile */}
-                          <div className="text-right hidden sm:block">
+                          {/* Amount - mobile */}
+                          <div className="flex-shrink-0 sm:hidden">
                             <span className={`font-bold text-lg block ${isIncome ? 'text-income' : 'text-expense'}`}>
                               {isIncome ? '+' : '-'}{formatCurrency(t.amount)}
                             </span>
                           </div>
+                        </div>
+
+                        {/* Right section: Image, Amount, Actions */}
+                        <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end" onClick={(e) => e.stopPropagation()}>
+                          {/* Image thumbnail */}
+                          {t.imageUrl && (
+                            <div className="relative group/img">
+                              <img
+                                src={t.imageUrl}
+                                alt="Attachment"
+                                className="w-12 h-12 object-cover rounded-lg cursor-pointer border-2 border-border/50 hover:border-primary transition-all hover:scale-105"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onImageClick(t.imageUrl!);
+                                }}
+                              />
+                              <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/10 rounded-lg transition-colors pointer-events-none" />
+                            </div>
+                          )}
                           
-                          <div className="flex gap-1">
+                          {/* Amount - desktop */}
+                          <div className="text-right hidden sm:block min-w-[120px]">
+                            <span className={`font-bold text-xl block ${isIncome ? 'text-income' : 'text-expense'}`}>
+                              {isIncome ? '+' : '-'}{formatCurrency(t.amount)}
+                            </span>
+                          </div>
+                          
+                          {/* Action buttons */}
+                          <div className="flex gap-1.5">
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 sm:h-9 sm:w-9 hover:bg-primary/10 hover:text-primary"
+                              className="h-9 w-9 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 onEdit(t);
                               }}
                             >
-                              <Pencil className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                              <Pencil className="h-4 w-4" />
                             </Button>
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 sm:h-9 sm:w-9 hover:bg-destructive/10 text-destructive hover:text-destructive"
+                              className="h-9 w-9 rounded-lg hover:bg-destructive/10 text-destructive hover:text-destructive transition-colors"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 onDelete(t.id);
                               }}
                             >
-                              <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                              <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
                         </div>
