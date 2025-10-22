@@ -241,109 +241,102 @@ export function TransactionHistory({
                   const user = users.find(u => u.id === t.userId);
                   const isIncome = t.type === 'income';
                   
+                  const truncateDescription = (desc: string) => {
+                    const words = desc.split(' ');
+                    return words.length > 3 ? words.slice(0, 3).join(' ') + '...' : desc;
+                  };
+
                   return (
                     <div
                       key={t.id}
-                      className={`group relative mb-3 p-4 sm:p-5 rounded-2xl bg-card border border-border/50 hover:border-border hover:shadow-xl transition-all duration-300 cursor-pointer ${
+                      className={`group relative mb-2 p-3 rounded-xl bg-card border border-border/50 hover:border-border hover:shadow-lg transition-all duration-300 cursor-pointer ${
                         isIncome ? 'hover:shadow-income/5' : 'hover:shadow-expense/5'
                       }`}
                       onClick={() => onTransactionClick(t)}
                     >
                       {/* Accent gradient bar */}
-                      <div className={`absolute left-0 top-0 bottom-0 w-1 ${
+                      <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-xl ${
                         isIncome ? 'bg-gradient-to-b from-income to-income/60' : 'bg-gradient-to-b from-expense to-expense/60'
                       }`} />
                       
                       {/* Card content */}
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                        {/* Icon and content section */}
-                        <div className="flex items-start gap-3 flex-1 min-w-0">
-                          {/* Icon */}
-                          <div className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center shadow-sm ${
-                            isIncome 
-                              ? 'bg-gradient-to-br from-income/20 to-income/10 border border-income/20' 
-                              : 'bg-gradient-to-br from-expense/20 to-expense/10 border border-expense/20'
-                          }`}>
-                            {isIncome ? (
-                              <ArrowUpCircle className="w-6 h-6 text-income" strokeWidth={2.5} />
-                            ) : (
-                              <ArrowDownCircle className="w-6 h-6 text-expense" strokeWidth={2.5} />
-                            )}
-                          </div>
-                          
-                          {/* Text content */}
-                          <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-base sm:text-lg text-foreground mb-1.5 group-hover:text-primary transition-colors break-words">
-                              {t.description}
-                            </p>
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className="inline-flex items-center text-xs px-2.5 py-1 bg-muted/60 rounded-full font-medium text-muted-foreground break-words">
-                                {user ? user.name : 'N/A'}
-                              </span>
+                      <div className="flex flex-col gap-2">
+                        {/* Top row: Amount and User */}
+                        <div className="flex items-center justify-between">
+                          <span className={`font-bold text-lg ${isIncome ? 'text-income' : 'text-expense'}`}>
+                            {isIncome ? '+' : '-'}{formatCurrency(t.amount)}
+                          </span>
+                          <span className="text-xs px-2 py-0.5 bg-muted/60 rounded-full font-medium text-muted-foreground">
+                            {user ? user.name : 'N/A'}
+                          </span>
+                        </div>
+
+                        {/* Bottom row: Icon, Description, Time, Actions */}
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 flex-1 min-w-0">
+                            {/* Icon */}
+                            <div className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${
+                              isIncome 
+                                ? 'bg-gradient-to-br from-income/20 to-income/10 border border-income/20' 
+                                : 'bg-gradient-to-br from-expense/20 to-expense/10 border border-expense/20'
+                            }`}>
+                              {isIncome ? (
+                                <ArrowUpCircle className="w-4 h-4 text-income" strokeWidth={2.5} />
+                              ) : (
+                                <ArrowDownCircle className="w-4 h-4 text-expense" strokeWidth={2.5} />
+                              )}
+                            </div>
+                            
+                            {/* Description and Time */}
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-sm text-foreground group-hover:text-primary transition-colors">
+                                {truncateDescription(t.description)}
+                              </p>
                               {t.time && (
-                                <span className="text-xs text-muted-foreground font-medium whitespace-nowrap">
+                                <span className="text-xs text-muted-foreground">
                                   {formatTime(t.time)}
                                 </span>
                               )}
                             </div>
                           </div>
 
-                          {/* Amount - mobile */}
-                          <div className="flex-shrink-0 sm:hidden">
-                            <span className={`font-bold text-lg block ${isIncome ? 'text-income' : 'text-expense'}`}>
-                              {isIncome ? '+' : '-'}{formatCurrency(t.amount)}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Right section: Image, Amount, Actions */}
-                        <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end" onClick={(e) => e.stopPropagation()}>
-                          {/* Image thumbnail */}
-                          {t.imageUrl && (
-                            <div className="relative group/img">
+                          {/* Right section: Image and Actions */}
+                          <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                            {/* Image thumbnail */}
+                            {t.imageUrl && (
                               <img
                                 src={t.imageUrl}
                                 alt="Attachment"
-                                className="w-12 h-12 object-cover rounded-lg cursor-pointer border-2 border-border/50 hover:border-primary transition-all hover:scale-105"
+                                className="w-8 h-8 object-cover rounded-md cursor-pointer border border-border/50 hover:border-primary transition-all hover:scale-105"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   onImageClick(t.imageUrl!);
                                 }}
                               />
-                              <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/10 rounded-lg transition-colors pointer-events-none" />
-                            </div>
-                          )}
-                          
-                          {/* Amount - desktop */}
-                          <div className="text-right hidden sm:block min-w-[120px]">
-                            <span className={`font-bold text-xl block ${isIncome ? 'text-income' : 'text-expense'}`}>
-                              {isIncome ? '+' : '-'}{formatCurrency(t.amount)}
-                            </span>
-                          </div>
-                          
-                          {/* Action buttons */}
-                          <div className="flex gap-1.5">
+                            )}
+                            
+                            {/* Action buttons */}
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-9 w-9 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
+                              className="h-7 w-7 rounded-md hover:bg-primary/10 hover:text-primary transition-colors"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 onEdit(t);
                               }}
                             >
-                              <Pencil className="h-4 w-4" />
+                              <Pencil className="h-3.5 w-3.5" />
                             </Button>
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-9 w-9 rounded-lg hover:bg-destructive/10 text-destructive hover:text-destructive transition-colors"
+                              className="h-7 w-7 rounded-md hover:bg-destructive/10 text-destructive hover:text-destructive transition-colors"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 onDelete(t.id);
                               }}
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <Trash2 className="h-3.5 w-3.5" />
                             </Button>
                           </div>
                         </div>
