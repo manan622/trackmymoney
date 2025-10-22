@@ -228,7 +228,7 @@ export function TransactionHistory({
 
       {/* Transaction list */}
       <ScrollArea className={isFullscreen ? 'h-[calc(100vh-300px)]' : 'h-[400px]'}>
-        <div className="space-y-3 pr-2 sm:pr-4">
+        <div className="space-y-3 pr-2 sm:pr-4 max-w-full overflow-x-hidden">
           {filteredTransactions.length === 0 ? (
             <p className="text-muted-foreground text-center py-8">No transactions match your filters.</p>
           ) : (
@@ -244,7 +244,7 @@ export function TransactionHistory({
                   return (
                     <div
                       key={t.id}
-                      className={`group relative mb-3 p-4 sm:p-5 rounded-2xl bg-card border border-border/50 hover:border-border hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden ${
+                      className={`group relative mb-3 p-4 sm:p-5 rounded-2xl bg-card border border-border/50 hover:border-border hover:shadow-xl transition-all duration-300 cursor-pointer ${
                         isIncome ? 'hover:shadow-income/5' : 'hover:shadow-expense/5'
                       }`}
                       onClick={() => onTransactionClick(t)}
@@ -273,15 +273,15 @@ export function TransactionHistory({
                           
                           {/* Text content */}
                           <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-base sm:text-lg text-foreground truncate mb-1.5 group-hover:text-primary transition-colors">
+                            <p className="font-semibold text-base sm:text-lg text-foreground mb-1.5 group-hover:text-primary transition-colors break-words">
                               {t.description}
                             </p>
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className="inline-flex items-center text-xs px-2.5 py-1 bg-muted/60 rounded-full font-medium text-muted-foreground">
+                              <span className="inline-flex items-center text-xs px-2.5 py-1 bg-muted/60 rounded-full font-medium text-muted-foreground break-words">
                                 {user ? user.name : 'N/A'}
                               </span>
                               {t.time && (
-                                <span className="text-xs text-muted-foreground font-medium">
+                                <span className="text-xs text-muted-foreground font-medium whitespace-nowrap">
                                   {formatTime(t.time)}
                                 </span>
                               )}
