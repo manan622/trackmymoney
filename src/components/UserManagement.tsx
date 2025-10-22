@@ -12,6 +12,7 @@ interface UserManagementProps {
   onEditUser: (id: number, newName: string) => void;
   onExportCSV: () => void;
   onImportCSV: (file: File) => void;
+  onImportUsersCSV: (file: File) => void;
 }
 
 export function UserManagement({ 
@@ -20,7 +21,8 @@ export function UserManagement({
   onDeleteUser,
   onEditUser,
   onExportCSV, 
-  onImportCSV 
+  onImportCSV,
+  onImportUsersCSV 
 }: UserManagementProps) {
   const [userName, setUserName] = useState('');
   const [editingUserId, setEditingUserId] = useState<number | null>(null);
@@ -127,33 +129,62 @@ export function UserManagement({
         ))}
       </div>
 
-      <div className="pt-4 border-t">
-        <h3 className="text-lg font-semibold mb-4">Data Management</h3>
-        <div className="flex flex-col sm:flex-row gap-3">
-          <Button variant="secondary" onClick={onExportCSV} className="w-full">
-            <Download className="w-4 h-4 mr-2" />
-            Export to CSV
-          </Button>
-          <label className="w-full">
-            <Button variant="secondary" className="w-full cursor-pointer" asChild>
-              <span>
-                <Upload className="w-4 h-4 mr-2" />
-                Import from CSV
-              </span>
+      <div className="pt-4 border-t space-y-4">
+        <div>
+          <h3 className="text-lg font-semibold mb-3">User Data</h3>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <label className="flex-1">
+              <Button variant="secondary" className="w-full cursor-pointer" asChild>
+                <span>
+                  <Upload className="w-4 h-4 mr-2" />
+                  Import Users CSV
+                </span>
+              </Button>
+              <input
+                type="file"
+                accept=".csv"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    onImportUsersCSV(file);
+                    e.target.value = '';
+                  }
+                }}
+              />
+            </label>
+          </div>
+          <p className="text-xs text-muted-foreground mt-2">CSV format: name</p>
+        </div>
+
+        <div>
+          <h3 className="text-lg font-semibold mb-3">Transaction Data</h3>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button variant="secondary" onClick={onExportCSV} className="flex-1">
+              <Download className="w-4 h-4 mr-2" />
+              Export Transactions
             </Button>
-            <input
-              type="file"
-              accept=".csv"
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  onImportCSV(file);
-                  e.target.value = '';
-                }
-              }}
-            />
-          </label>
+            <label className="flex-1">
+              <Button variant="secondary" className="w-full cursor-pointer" asChild>
+                <span>
+                  <Upload className="w-4 h-4 mr-2" />
+                  Import Transactions
+                </span>
+              </Button>
+              <input
+                type="file"
+                accept=".csv"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    onImportCSV(file);
+                    e.target.value = '';
+                  }
+                }}
+              />
+            </label>
+          </div>
         </div>
       </div>
     </div>
