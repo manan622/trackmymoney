@@ -25,6 +25,7 @@ const Index = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hiddenBalances, setHiddenBalances] = useState<Set<number>>(new Set());
   
   // Modal states
   const [deleteUserModal, setDeleteUserModal] = useState<{ open: boolean; userId: number | null }>({ open: false, userId: null });
@@ -446,7 +447,22 @@ const Index = () => {
         </Card>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <BalanceCards users={users} transactions={transactions} />
+          <BalanceCards 
+            users={users} 
+            transactions={transactions}
+            hiddenBalances={hiddenBalances}
+            onToggleHidden={(userId) => {
+              setHiddenBalances(prev => {
+                const newSet = new Set(prev);
+                if (newSet.has(userId)) {
+                  newSet.delete(userId);
+                } else {
+                  newSet.add(userId);
+                }
+                return newSet;
+              });
+            }}
+          />
         </div>
 
         <Tabs defaultValue="history" className="w-full">

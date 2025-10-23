@@ -29,6 +29,7 @@ export function TransactionHistory({
   const [selectedWeek, setSelectedWeek] = useState('1');
   const [searchQuery, setSearchQuery] = useState('');
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
 
   const formatCurrency = (amount: number) => 
     `₹${new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount)}`;
@@ -80,6 +81,11 @@ export function TransactionHistory({
       });
     }
 
+    // Apply user filter
+    if (selectedUsers.length > 0) {
+      filtered = filtered.filter(t => selectedUsers.includes(t.userId));
+    }
+
     // Apply search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
@@ -91,7 +97,7 @@ export function TransactionHistory({
     }
 
     return filtered;
-  }, [transactions, filterType, selectedMonth, selectedYear, selectedWeek, searchQuery, users]);
+  }, [transactions, filterType, selectedMonth, selectedYear, selectedWeek, selectedUsers, searchQuery, users]);
 
   // Calculate summary
   const summary = useMemo(() => {
@@ -193,6 +199,28 @@ export function TransactionHistory({
               </Select>
             </div>
           )}
+
+          {/* User filter */}
+          <Select 
+            value={selectedUsers.length === 1 ? selectedUsers[0].toString() : "all"} 
+            onValueChange={(value) => {
+              if (value === "all") {
+                setSelectedUsers([]);
+              } else {
+                setSelectedUsers([parseInt(value)]);
+              }
+            }}
+          >
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="All Users" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Users</SelectItem>
+              {users.map(user => (
+                <SelectItem key={user.id} value={user.id.toString()}>{user.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
           {/* Search input */}
           <div className="relative flex-1 min-w-[200px]">
