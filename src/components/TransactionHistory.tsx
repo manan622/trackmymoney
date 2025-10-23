@@ -142,96 +142,100 @@ export function TransactionHistory({
 
       {/* Filters */}
       <div className="bg-muted/50 p-4 rounded-lg mb-4 space-y-4">
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-col gap-4">
           {/* Filter type toggle */}
-          <div className="flex gap-1 bg-background rounded-md p-1">
-            {(['month', 'week', 'year', 'total'] as const).map(type => (
-              <Button
-                key={type}
-                variant={filterType === type ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setFilterType(type)}
-                className="capitalize"
-              >
-                {type}
-              </Button>
-            ))}
+          <div className="flex flex-wrap gap-2 justify-between items-center">
+            <div className="flex gap-1 bg-background rounded-md p-1">
+              {(['month', 'week', 'year', 'total'] as const).map(type => (
+                <Button
+                  key={type}
+                  variant={filterType === type ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setFilterType(type)}
+                  className="capitalize"
+                >
+                  {type}
+                </Button>
+              ))}
+            </div>
           </div>
 
-          {/* Date selectors */}
-          {filterType !== 'total' && (
-            <div className="flex items-center gap-2">
-              {(filterType === 'month' || filterType === 'week') && (
-                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                  <SelectTrigger className="w-32">
+          {/* Date and user filters */}
+          <div className="flex flex-wrap items-center gap-3">
+            {filterType !== 'total' && (
+              <>
+                {(filterType === 'month' || filterType === 'week') && (
+                  <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                    <SelectTrigger className="w-full sm:w-40">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {months.map((month, i) => (
+                        <SelectItem key={i} value={i.toString()}>{month}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+                
+                {filterType === 'week' && (
+                  <Select value={selectedWeek} onValueChange={setSelectedWeek}>
+                    <SelectTrigger className="w-full sm:w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[1, 2, 3, 4, 5].map(w => (
+                        <SelectItem key={w} value={w.toString()}>Week {w}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+                
+                <Select value={selectedYear} onValueChange={setSelectedYear}>
+                  <SelectTrigger className="w-full sm:w-32">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {months.map((month, i) => (
-                      <SelectItem key={i} value={i.toString()}>{month}</SelectItem>
+                    {years.map(year => (
+                      <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-              )}
-              
-              {filterType === 'week' && (
-                <Select value={selectedWeek} onValueChange={setSelectedWeek}>
-                  <SelectTrigger className="w-24">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[1, 2, 3, 4, 5].map(w => (
-                      <SelectItem key={w} value={w.toString()}>Week {w}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-              
-              <Select value={selectedYear} onValueChange={setSelectedYear}>
-                <SelectTrigger className="w-24">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {years.map(year => (
-                    <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              </>
+            )}
+
+            {/* User filter */}
+            <Select 
+              value={selectedUsers.length === 1 ? selectedUsers[0].toString() : "all"} 
+              onValueChange={(value) => {
+                if (value === "all") {
+                  setSelectedUsers([]);
+                } else {
+                  setSelectedUsers([parseInt(value)]);
+                }
+              }}
+            >
+              <SelectTrigger className="w-full sm:w-40">
+                <SelectValue placeholder="All Users" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Users</SelectItem>
+                {users.map(user => (
+                  <SelectItem key={user.id} value={user.id.toString()}>{user.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Search input */}
+            <div className="relative flex-1 min-w-[200px]">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search description or user..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9"
+              />
             </div>
-          )}
-
-          {/* User filter */}
-          <Select 
-            value={selectedUsers.length === 1 ? selectedUsers[0].toString() : "all"} 
-            onValueChange={(value) => {
-              if (value === "all") {
-                setSelectedUsers([]);
-              } else {
-                setSelectedUsers([parseInt(value)]);
-              }
-            }}
-          >
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="All Users" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Users</SelectItem>
-              {users.map(user => (
-                <SelectItem key={user.id} value={user.id.toString()}>{user.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          {/* Search input */}
-          <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search description or user..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-            />
           </div>
         </div>
 

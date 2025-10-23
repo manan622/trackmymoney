@@ -26,7 +26,10 @@ const Index = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
-  const [hiddenBalances, setHiddenBalances] = useState<Set<number>>(new Set());
+  const [hiddenBalances, setHiddenBalances] = useState<Set<number>>(() => {
+    const saved = localStorage.getItem('hiddenBalances');
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  });
   
   // Modal states
   const [deleteUserModal, setDeleteUserModal] = useState<{ open: boolean; userId: number | null }>({ open: false, userId: null });
@@ -52,6 +55,11 @@ const Index = () => {
       loadData();
     }
   }, [user]);
+
+  // Persist hidden balances to localStorage
+  useEffect(() => {
+    localStorage.setItem('hiddenBalances', JSON.stringify(Array.from(hiddenBalances)));
+  }, [hiddenBalances]);
 
   const getNumericId = (uuid: string, currentIdMap: Map<string, number>, currentNextId: number): [number, Map<string, number>, number] => {
     if (currentIdMap.has(uuid)) {
@@ -289,6 +297,107 @@ const Index = () => {
   };
 
   const handleImportCSV = async (file: File) => {
+    const fileExtension = file.name.split('.').pop()?.toLowerCase();
+    
+    // Handle Excel files (.xlsx, .xls)
+    if (fileExtension === 'xlsx' || fileExtension === 'xls') {
+      const XLSX = await import('xlsx');
+      const reader = new FileReader();
+      
+      reader.onload = async (e) => {
+        try {
+          const data = new Uint8Array(e.target?.result as ArrayBuffer);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 }) as any[][];
+          
+          // Convert to CSV-like format
+          const headers = jsonData[0].map((h: any) => String(h).trim());
+          const isMoneyManagerFormat = headers.includes('Income/Expense');
+          
+          if (!isMoneyManagerFormat) {
+            toast.error('Unknown file format. Expected Money Manager format.');
+            return;
+          }
+
+          let importedCount = 0;
+          const dateIndex = headers.indexOf('Date');
+          const accountIndex = headers.indexOf('Account');
+          const noteIndex = headers.indexOf('Note');
+          const amountIndex = headers.indexOf('INR');
+          const typeIndex = headers.indexOf('Income/Expense');
+
+          for (let i = 1; i < jsonData.length; i++) {
+            const row = jsonData[i];
+            if (!row || row.length === 0) continue;
+
+            const dateTimeString = String(row[dateIndex] || '');
+            if (!dateTimeString) continue;
+
+            const [datePart, timePart] = dateTimeString.split(' ');
+            const [month, day, year] = datePart.split('/');
+            const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+            
+            const accountName = String(row[accountIndex] || '').trim();
+            if (!accountName) continue;
+            
+            // Find or create user
+            let existingUser = users.find(u => u.name.toLowerCase() === accountName.toLowerCase());
+            let userUuid: string;
+
+            if (!existingUser) {
+              const { data: dbUsers } = await supabase
+                .from('expense_users')
+                .select('*')
+                .eq('user_id', user!.id)
+                .ilike('name', accountName);
+
+              if (dbUsers && dbUsers.length > 0) {
+                userUuid = dbUsers[0].id;
+              } else {
+                const { data: newUser, error: userError } = await supabase
+                  .from('expense_users')
+                  .insert({ name: accountName, user_id: user!.id })
+                  .select()
+                  .single();
+
+                if (userError) throw userError;
+                userUuid = newUser.id;
+              }
+            } else {
+              userUuid = getUuidFromNumericId(existingUser.id)!;
+            }
+
+            // Create transaction
+            const { error: txError } = await supabase
+              .from('transactions')
+              .insert({
+                user_id: user!.id,
+                expense_user_id: userUuid,
+                type: String(row[typeIndex] || '').toLowerCase(),
+                amount: parseFloat(String(row[amountIndex] || '0')),
+                description: String(row[noteIndex] || ''),
+                date: formattedDate,
+                time: timePart || null,
+                image_url: null,
+              });
+
+            if (txError) throw txError;
+            importedCount++;
+          }
+
+          toast.success(`${importedCount} transactions imported successfully`);
+          await loadData();
+        } catch (error: any) {
+          toast.error(error.message || 'Failed to import file');
+        }
+      };
+      
+      reader.readAsArrayBuffer(file);
+      return;
+    }
+    
+    // Handle CSV files
     const reader = new FileReader();
     reader.onload = async (e) => {
       try {
@@ -298,7 +407,7 @@ const Index = () => {
         
         const isMoneyManagerFormat = headers.includes('Income/Expense');
         if (!isMoneyManagerFormat) {
-          toast.error('Unknown CSV format');
+          toast.error('Unknown CSV format. Expected Money Manager format.');
           return;
         }
 

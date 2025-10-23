@@ -169,12 +169,12 @@ export function UserManagement({
             <Button variant="secondary" className="w-full cursor-pointer" asChild>
               <span>
                 <Upload className="w-4 h-4 mr-2" />
-                Import from CSV
+                Import from File
               </span>
             </Button>
             <input
               type="file"
-              accept=".csv"
+              accept=".csv,.xlsx,.xls"
               className="hidden"
               onChange={(e) => {
                 const file = e.target.files?.[0];
