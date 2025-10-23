@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { User, Transaction } from '@/types/expense';
 import { exportToCSV } from '@/lib/csvExport';
+import { exportToWord } from '@/lib/wordExport';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -275,9 +276,16 @@ const Index = () => {
     }
   };
 
-  const handleExportCSV = () => {
-    exportToCSV(transactions, users);
-    toast.success('Data exported successfully');
+  const handleExportCSV = (userId?: number) => {
+    exportToCSV(transactions, users, userId);
+    const userName = userId ? users.find(u => u.id === userId)?.name : 'all';
+    toast.success(`Data exported successfully for ${userName}`);
+  };
+
+  const handleExportWord = async (userId?: number) => {
+    await exportToWord(transactions, users, userId);
+    const userName = userId ? users.find(u => u.id === userId)?.name : 'all';
+    toast.success(`Statement exported successfully for ${userName}`);
   };
 
   const handleImportCSV = async (file: File) => {
@@ -515,6 +523,7 @@ const Index = () => {
                   onDeleteUser={handleDeleteUser}
                   onEditUser={handleEditUser}
                   onExportCSV={handleExportCSV}
+                  onExportWord={handleExportWord}
                   onImportCSV={handleImportCSV}
                 />
               </CardContent>

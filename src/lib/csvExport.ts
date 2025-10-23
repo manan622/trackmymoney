@@ -1,14 +1,19 @@
 import { Transaction, User } from '@/types/expense';
 
-export function exportToCSV(transactions: Transaction[], users: User[]) {
-  if (transactions.length === 0) {
+export function exportToCSV(transactions: Transaction[], users: User[], userId?: number) {
+  // Filter transactions by user if userId is provided
+  const filteredTransactions = userId 
+    ? transactions.filter(t => t.userId === userId)
+    : transactions;
+
+  if (filteredTransactions.length === 0) {
     alert('No transactions to export.');
     return;
   }
 
   // Match Money Manager CSV format exactly
   const headers = ['Date', 'Account', 'Category', 'Subcategory', 'Note', 'INR', 'Income/Expense', 'Description', 'Amount', 'Currency', 'Account'];
-  const rows = transactions.map(t => {
+  const rows = filteredTransactions.map(t => {
     const user = users.find(u => u.id === t.userId);
     const userName = user ? user.name : 'N/A';
     const description = (t.description || '').replace(/"/g, '""');
@@ -36,10 +41,11 @@ export function exportToCSV(transactions: Transaction[], users: User[]) {
     ].join(',');
   });
 
+  const userSuffix = userId ? `_${users.find(u => u.id === userId)?.name.replace(/\s+/g, '_')}` : '';
   const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows].join('\n');
   const link = document.createElement("a");
   link.setAttribute("href", encodeURI(csvContent));
-  link.setAttribute("download", `expense_data_${new Date().toISOString().slice(0,10)}.csv`);
+  link.setAttribute("download", `expense_data${userSuffix}_${new Date().toISOString().slice(0,10)}.csv`);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);

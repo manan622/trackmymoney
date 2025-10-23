@@ -3,14 +3,16 @@ import { User } from '@/types/expense';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { UserPlus, User as UserIcon, Trash2, Download, Upload, Edit2, Check, X } from 'lucide-react';
+import { UserPlus, User as UserIcon, Trash2, Download, Upload, Edit2, Check, X, FileText } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 interface UserManagementProps {
   users: User[];
   onAddUser: (name: string) => void;
   onDeleteUser: (id: number) => void;
   onEditUser: (id: number, newName: string) => void;
-  onExportCSV: () => void;
+  onExportCSV: (userId?: number) => void;
+  onExportWord: (userId?: number) => void;
   onImportCSV: (file: File) => void;
 }
 
@@ -19,7 +21,8 @@ export function UserManagement({
   onAddUser, 
   onDeleteUser,
   onEditUser,
-  onExportCSV, 
+  onExportCSV,
+  onExportWord,
   onImportCSV 
 }: UserManagementProps) {
   const [userName, setUserName] = useState('');
@@ -94,11 +97,33 @@ export function UserManagement({
               </>
             ) : (
               <>
-                <span className="font-medium flex items-center gap-2">
+                 <span className="font-medium flex items-center gap-2">
                   <UserIcon className="w-4 h-4" />
                   {user.name}
                 </span>
                 <div className="flex gap-1">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        title={`Export ${user.name}'s data`}
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => onExportCSV(user.id)}>
+                        <Download className="h-4 w-4 mr-2" />
+                        Export as CSV
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => onExportWord(user.id)}>
+                        <FileText className="h-4 w-4 mr-2" />
+                        Export as Word
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                   <Button
                     variant="ghost"
                     size="icon"
@@ -129,11 +154,17 @@ export function UserManagement({
 
       <div className="pt-4 border-t">
         <h3 className="text-lg font-semibold mb-4">Data Management</h3>
-        <div className="flex flex-col sm:flex-row gap-3">
-          <Button variant="secondary" onClick={onExportCSV} className="w-full">
-            <Download className="w-4 h-4 mr-2" />
-            Export to CSV
-          </Button>
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button variant="secondary" onClick={() => onExportCSV()} className="flex-1">
+              <Download className="w-4 h-4 mr-2" />
+              Export All to CSV
+            </Button>
+            <Button variant="secondary" onClick={() => onExportWord()} className="flex-1">
+              <FileText className="w-4 h-4 mr-2" />
+              Export All to Word
+            </Button>
+          </div>
           <label className="w-full">
             <Button variant="secondary" className="w-full cursor-pointer" asChild>
               <span>
