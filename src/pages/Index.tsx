@@ -30,6 +30,10 @@ const Index = () => {
     const saved = localStorage.getItem('hiddenBalances');
     return saved ? new Set(JSON.parse(saved)) : new Set();
   });
+  const [includeHiddenInTotal, setIncludeHiddenInTotal] = useState<boolean>(() => {
+    const saved = localStorage.getItem('includeHiddenInTotal');
+    return saved ? JSON.parse(saved) : true;
+  });
   
   // Modal states
   const [deleteUserModal, setDeleteUserModal] = useState<{ open: boolean; userId: number | null }>({ open: false, userId: null });
@@ -60,6 +64,10 @@ const Index = () => {
   useEffect(() => {
     localStorage.setItem('hiddenBalances', JSON.stringify(Array.from(hiddenBalances)));
   }, [hiddenBalances]);
+
+  useEffect(() => {
+    localStorage.setItem('includeHiddenInTotal', JSON.stringify(includeHiddenInTotal));
+  }, [includeHiddenInTotal]);
 
   const getNumericId = (uuid: string, currentIdMap: Map<string, number>, currentNextId: number): [number, Map<string, number>, number] => {
     if (currentIdMap.has(uuid)) {
@@ -296,7 +304,22 @@ const Index = () => {
     toast.success(`Statement exported successfully for ${userName}`);
   };
 
-  const handleImportCSV = async (file: File) => {
+  const handleImportCSV = async (file: File, userId?: number) => {
+    // If userId is provided, delete existing transactions for that user first
+    if (userId) {
+      const userUuid = getUuidFromNumericId(userId);
+      if (userUuid) {
+        try {
+          await supabase
+            .from('transactions')
+            .delete()
+            .eq('expense_user_id', userUuid);
+        } catch (error: any) {
+          toast.error('Failed to clear existing data');
+          return;
+        }
+      }
+    }
     const fileExtension = file.name.split('.').pop()?.toLowerCase();
     
     // Handle Excel files (.xlsx, .xls)
@@ -386,7 +409,11 @@ const Index = () => {
             importedCount++;
           }
 
-          toast.success(`${importedCount} transactions imported successfully`);
+          if (userId) {
+            toast.success(`Overridden data for user. Imported ${importedCount} transactions.`);
+          } else {
+            toast.success(`${importedCount} transactions imported successfully`);
+          }
           await loadData();
         } catch (error: any) {
           toast.error(error.message || 'Failed to import file');
@@ -477,7 +504,11 @@ const Index = () => {
           importedCount++;
         }
 
-        toast.success(`${importedCount} transactions imported successfully`);
+        if (userId) {
+          toast.success(`Overridden data for user. Imported ${importedCount} transactions.`);
+        } else {
+          toast.success(`${importedCount} transactions imported successfully`);
+        }
         await loadData();
       } catch (error: any) {
         console.error('Import error:', error);
@@ -517,7 +548,12 @@ const Index = () => {
     return `${formattedHour}:${minute} ${suffix}`;
   };
 
-  const totalBalance = users.reduce((sum, u) => sum + u.balance, 0);
+  const totalBalance = users.reduce((sum, u) => {
+    if (!includeHiddenInTotal && hiddenBalances.has(u.id)) {
+      return sum;
+    }
+    return sum + u.balance;
+  }, 0);
 
   if (authLoading || loading) {
     return (
@@ -579,6 +615,8 @@ const Index = () => {
                 return newSet;
               });
             }}
+            includeHiddenInTotal={includeHiddenInTotal}
+            onToggleIncludeHidden={setIncludeHiddenInTotal}
           />
         </div>
 

@@ -13,7 +13,7 @@ interface UserManagementProps {
   onEditUser: (id: number, newName: string) => void;
   onExportCSV: (userId?: number) => void;
   onExportWord: (userId?: number) => void;
-  onImportCSV: (file: File) => void;
+  onImportCSV: (file: File, userId?: number) => void;
 }
 
 export function UserManagement({ 
@@ -102,6 +102,31 @@ export function UserManagement({
                   {user.name}
                 </span>
                 <div className="flex gap-1">
+                  <label>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 cursor-pointer"
+                      title={`Import data for ${user.name}`}
+                      asChild
+                    >
+                      <span>
+                        <Upload className="h-4 w-4" />
+                      </span>
+                    </Button>
+                    <input
+                      type="file"
+                      accept=".csv,.xlsx,.xls"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          onImportCSV(file, user.id);
+                          e.target.value = '';
+                        }
+                      }}
+                    />
+                  </label>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
